@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type SubtitleSegment struct {
@@ -55,8 +56,14 @@ func ParseFile(path string) ([]SubtitleSegment, error) {
 			text += seg.Text
 		}
 
+		text = strings.Join(strings.Fields(text), " ") // убираем пробелы и разделы
+		if text == "" {
+			continue
+		}
+
 		segments = append(segments, SubtitleSegment{
 			StartMs: event.StartFrom,
+			EndMs: event.DurationSeg + event.StartFrom,
 			Text:    text,
 		})
 	}
@@ -74,7 +81,8 @@ func SaveSegments(path_to_save string, segments []SubtitleSegment) error {
 	writer := bufio.NewWriter(file)
 
 	for _, segment := range segments {
-		_, err := fmt.Fprintf(writer, "%d\t%s\n", segment.StartMs, segment.Text)
+
+		_, err := fmt.Fprintf(writer, "%d\t%d\t%s\n", segment.StartMs, segment.EndMs, segment.Text)
 
 		if err != nil {
 			return err
