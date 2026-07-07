@@ -23,10 +23,10 @@ func ConvertMsToNormalTime(msTime int) string {
 	return fmt.Sprintf("%02d:%02d", minutes, seconds)
 }
 
-func FindWordV1(path string, word string) (string, int, error) {
+func FindWordV1(path string, word string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 	defer file.Close()
 
@@ -39,17 +39,17 @@ func FindWordV1(path string, word string) (string, int, error) {
 		if strings.Contains(parts[2], word) {
 			start, err := strconv.Atoi(parts[0])
 			if err != nil {
-				return "", 0, err
+				return "", err
 			}
 
-			return "yes", start, nil
+			return "yes, " + ConvertMsToNormalTime(start), nil
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return "", 0, err
+		return "", err
 	}
 
-	return "no", 0, nil
+	return "no", nil
 
 }

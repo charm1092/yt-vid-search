@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/charm1092/YT_video_search/internal/subtitles"
+	"github.com/charm1092/YT_video_search/internal/search"
 )
 
 func main()  {
@@ -25,4 +26,14 @@ func main()  {
 		return
 	}
 
+	var s string
+	fmt.Scan(&s)
+
+	answer, err := search.FindWordV1("subs.txt", s)
+	if err != nil {
+		fmt.Println("error: ", err)
+		return
+	}
+
+	fmt.Println(answer)
 }
