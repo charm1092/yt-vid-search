@@ -4,9 +4,8 @@ import (
 	"os/exec"
 )
 
-func Fetcher(url string) (string, error) {
-	outputPath := "subtitles" // название файла json с сабами
-
+func Fetcher(url, outputPath string) (string, error) {
+	
 	cmd := exec.Command("yt-dlp",
 		"--write-auto-subs",
 		"--sub-langs", "ru",
