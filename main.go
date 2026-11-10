@@ -89,7 +89,7 @@ func main() {
 	selected := answer[choice-1]
 
 	fmt.Println("результат поиска: ")
-	result, err := search.FindContextBySelectedV1(selected, segmentsPath)
+	result, err := search.FindContextBySelectedV2(selected, segmentsPath)
 	if err != nil {
 		fmt.Println("error: ошибка поиска контекста, ", err)
 		return
@@ -98,5 +98,4 @@ func main() {
 	for _, s := range result {
 		fmt.Println(s)
 	}
-	
 }
