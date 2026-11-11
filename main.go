@@ -8,6 +8,7 @@ import (
 
 	"github.com/charm1092/YT_video_search/internal/search"
 	"github.com/charm1092/YT_video_search/internal/subtitles"
+	"github.com/charm1092/YT_video_search/internal/cache"
 )
 
 func main() {
@@ -55,14 +56,23 @@ func main() {
 		}
 
 		if err := subtitles.SaveSegments(segmentsPath, segments); err != nil {
-			fmt.Println("error:", err)
+			fmt.Println("error: ", err)
 			return
 		}
 	} else if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("error: ", err)
 		return
 	}
 
+	if err := cache.Touch(cacheDir); err != nil {
+		fmt.Println("ошибка обновления времени кеша: ", err)
+    	return
+	}
+	if err := cache.Cleanup("data/video", 5); err != nil {
+		fmt.Println("Ошибка при удалении папки: ", err)
+		return
+	}
+	
 	fmt.Println("файлы готовы к работе")
 
 	var s string
