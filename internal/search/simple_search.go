@@ -25,6 +25,14 @@ func NewFoundSegment(start, end int, text string) *FoundSegment {
 	}
 }
 
+// func Sentences(text string, target string) []string {
+// 	for _, v := range text {
+// 		if v == '.' {
+			
+// 		}
+// 	}
+// }
+
 func ConvertMsToNormalTime(msTime int) string {
 	t := time.Duration(msTime) * time.Millisecond
 
@@ -88,12 +96,12 @@ func FindWordInFile(path string, word string) ([]FoundSegment, error) {
 	return slice_of_starts, nil
 }
 
-func FindContextBySelectedV2(selectedSegment FoundSegment, path string) ([]FoundSegment, error) {
+func FindContextBySelected(selectedSegment FoundSegment, path string) (string, error) {
 	allSegments := make([]FoundSegment, 0, 100)
 	segmentContext := make([]FoundSegment, 5)
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer file.Close()
 
@@ -105,12 +113,12 @@ func FindContextBySelectedV2(selectedSegment FoundSegment, path string) ([]Found
 
 		start, err := strconv.Atoi(parts[0])
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		end, err := strconv.Atoi(parts[1])
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		temp := FoundSegment{
@@ -128,12 +136,26 @@ func FindContextBySelectedV2(selectedSegment FoundSegment, path string) ([]Found
 				index := i - 2 + j
 				if index >= 0 && index < len(allSegments) {
 					segmentContext[j] = allSegments[index]
-				} else {
-
 				}
+			}
+			if i+3 < len(allSegments) && !(strings.HasSuffix(allSegments[i+2].Text, ".") || strings.HasSuffix(allSegments[i+2].Text, "!") || strings.HasSuffix(allSegments[i+2].Text, "?")) {
+				next := allSegments[i+3]
+				pos := strings.IndexAny(next.Text, ".!?")
+				if pos >= 0 {
+					next.Text = next.Text[:pos+1]
+				}
+				segmentContext = append(segmentContext, next)
 			}
 		}
 	}
 
-	return segmentContext, nil
+	var text []string
+	var startTime string 
+	startTime = ConvertMsToNormalTime(selectedSegment.Start)
+	for _, v := range segmentContext {
+		text = append(text, v.Text)
+	}
+
+	result := startTime + " - " + strings.Join(text, " ")
+	return result, nil
 }
