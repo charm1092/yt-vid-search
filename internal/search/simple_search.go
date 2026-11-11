@@ -1,5 +1,7 @@
 package search
 
+// todo: сделать возможность переходить к следующим и предыдущим упоминаниям и их контекстам, а то щас доступно ток по первому упоминанию
+
 import (
 	"bufio"
 	"fmt"
@@ -54,8 +56,6 @@ func FindWordInFile(path string, word string) ([]FoundSegment, error) {
 		parts := strings.Split(line, "\t")
 		textLow := strings.ToLower(parts[2])
 
-		
-
 		if strings.Contains(textLow, word) {
 			start, err := strconv.Atoi(parts[0])
 			if err != nil {
@@ -88,7 +88,7 @@ func FindWordInFile(path string, word string) ([]FoundSegment, error) {
 	return slice_of_starts, nil
 }
 
-func FindContextBySelectedV1(selectedSegment FoundSegment, path string) ([]FoundSegment, error) {
+func FindContextBySelectedV2(selectedSegment FoundSegment, path string) ([]FoundSegment, error) {
 	allSegments := make([]FoundSegment, 0, 100)
 	segmentContext := make([]FoundSegment, 5)
 	file, err := os.Open(path)
@@ -125,7 +125,12 @@ func FindContextBySelectedV1(selectedSegment FoundSegment, path string) ([]Found
 	for i := 0; i < len(allSegments); i++ {
 		if allSegments[i].Start == selectedSegment.Start {
 			for j := 0; j < len(segmentContext); j++ {
-				segmentContext[j] = allSegments[i-2+j]
+				index := i - 2 + j
+				if index >= 0 && index < len(allSegments) {
+					segmentContext[j] = allSegments[index]
+				} else {
+
+				}
 			}
 		}
 	}
