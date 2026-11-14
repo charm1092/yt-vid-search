@@ -3,12 +3,7 @@ package main
 import (
 	"fmt"
 	"net/url"
-	"os"
-	"path/filepath"
-
 	"github.com/charm1092/YT_video_search/internal/search"
-	"github.com/charm1092/YT_video_search/internal/subtitles"
-	"github.com/charm1092/YT_video_search/internal/cache"
 )
 
 func main() {
@@ -27,49 +22,8 @@ func main() {
 		return
 	}
 
-	cacheDir := filepath.Join("data", "video", videoID)
-	if err := os.MkdirAll(cacheDir, 0755); err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-
-	jsonBasePath := filepath.Join(cacheDir, "subtitles")
-	jsonPath := jsonBasePath + ".ru.json3"
-	segmentsPath := filepath.Join(cacheDir, "subs.txt")
-
-	if _, err := os.Stat(segmentsPath); os.IsNotExist(err) {
-		if _, err := os.Stat(jsonPath); os.IsNotExist(err) {
-			jsonPath, err = subtitles.Fetcher(urlRaw, jsonBasePath)
-			if err != nil {
-				fmt.Println("error:", err)
-				return
-			}
-		} else if err != nil {
-			fmt.Println("error:", err)
-			return
-		}
-
-		segments, err := subtitles.ParseFile(jsonPath)
-		if err != nil {
-			fmt.Println("error:", err)
-			return
-		}
-
-		if err := subtitles.SaveSegments(segmentsPath, segments); err != nil {
-			fmt.Println("error: ", err)
-			return
-		}
-	} else if err != nil {
-		fmt.Println("error: ", err)
-		return
-	}
-
-	if err := cache.Touch(cacheDir); err != nil {
-		fmt.Println("ошибка обновления времени кеша: ", err)
-    	return
-	}
-	if err := cache.Cleanup("data/video", 5); err != nil {
-		fmt.Println("Ошибка при удалении папки: ", err)
+	segmentsPath, err := search.PrepareSubtitles(urlRaw, videoID)
+	if err != nil {
 		return
 	}
 	
